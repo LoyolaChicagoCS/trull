@@ -1,0 +1,74 @@
+DISCUSSION OF CONSTRUCTION VS. EXECUTION PHASES
+===============================================
+
+Here is an issue involving the Trull Emit() combinator that you
+might come across in the battleship program.
+
+Suppose you want to emit a SHOT event and attach a PlaceEvent
+object to it to record the position of the event.  You might
+think to use this constructor:
+
+  public Emit(String label, Object evt)
+
+For example:
+
+  new Emit(SHOT, new PlaceEvent(x, y))
+
+But there is a problem with this.  The issue is that there are
+two phases to a Trull program: the component-construction phase
+and the component-execution phase.  Consider the following code:
+
+  Component e = ....;
+
+  Scheduling.getScheduler().start(e);
+
+In this example, the first line performs the
+component-construction phase, and the second line performs the
+component-execution phase.  If the "...."  on the first line
+contains
+
+  new Emit(SHOT, new PlaceEvent(x, y))
+
+then the PlaceEvent object will be created DURING THE
+COMPONENT-CONSTRUCTION PHASE rather than during the
+component-execution phase.  Consequently, it will be created with
+the values of x and y DURING THE COMPONENT-CONSTRUCTION PHASE.
+For instance, if x and y are initialized to 0, they will still be
+0 when component e is constructed.  Then, during the execution of e,
+the SHOT event will contain the pre-constructed PlaceEvent(0,0)
+event, event if the current values of x and y are different at
+that point.
+
+The solution is to use a different Emit constructor:
+
+  public Emit(String label, EventFunction emitter)
+
+EventFunction is an interface in the Trull package with the following
+method:
+
+  Object apply(PropertyChangeEvent evt)
+
+The idea is that apply() returns the event that you want to be
+emitted, but now the event can be created dynamically, DURING THE
+COMPONENT-EXECUTION PHASE.  The example above would be recoded
+as:
+
+  new Emit(SHOT, new EventFunction() {
+    public Object apply(PropertyChangeEvent evt) {
+      return new PlaceEvent(x, y);
+    }})
+
+The EventFunction object is created during the
+component-construction phase, but its apply() method isn't called
+until the component-execution phase, whenever the Emit component
+executes, at which point it picks up the current values of x and
+y.
+
+As far as emitters go, don't worry about the PropertyChangeEvent
+parameter of apply().
+
+This issue with EventFunctions is precisely the same issue behind
+PropertyChangeListeners (actions, EventPredicates, and
+EventValuators.  All four of these classes have apply() methods
+so that they may be evaluated dynamically, during the
+component-execution phase.

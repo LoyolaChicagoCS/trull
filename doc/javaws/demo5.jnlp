@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp
+  spec="1.0+"
+  codebase="http://www.cs.luc.edu/trull/latest/"
+  href="doc/javaws/demo5.jnlp">
+  <information>
+    <title>Trull Counter Demo 5</title>
+    <vendor>Loyola University Chicago</vendor>
+    <homepage href="http://www.cs.luc.edu/trull/"/>
+    <description>Trull Counter Demo 5</description>
+    <description kind="short">A demo of counter components.</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.4"/>
+    <jar href="lib/trull.jar"/>
+    <jar href="lib/log4j.jar"/>
+    <jar href="lib/concurrent.jar"/>
+  </resources>
+  <application-desc main-class="edu.luc.cs.trull.demo.counter.Demo5"/>
+</jnlp> 

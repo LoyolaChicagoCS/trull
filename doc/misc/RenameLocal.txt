@@ -1,0 +1,103 @@
+DISCUSSION OF RENAME AND LOCAL
+==============================
+
+Notation
+
+input events:  l ->
+output events: -> l
+[ ... ]: a component
+
+
+Counter(Expr)
+
+   UP ->
+ DOWN -> [ position ] -> PRESSED
+RESET ->              -> OUCH
+
+Demo1 wires a Counter, and Demo1a a CounterExpr, with a ManualClock.
+
+Demo2 wires a CounterExpr with an internal clock.  This already
+requires renaming -> TICK to -> UP.
+
+
+Renaming
+
+  rename l to l in e
+  rename {l,...,l} to {l,...,l} in e
+
+This provides a consistent, light-weight renaming in the component e
+of all occurrences of the old event label(s) to the new event
+label(s).  This form of renaming is light-weight because it customizes
+the component in-place and requires no glue code.
+
+
+CarryCounter
+
+Intended abstract behavior of the component:
+
+UP -> [ ? ] -> OVERFLOW
+
+There are two cases
+
+1) Base case: a carry counter built from a CounterExpr.
+
+   -> PRESSED wired into DOWN -> (internally via glue code and local)
+   -> OUCH wired into RESET -> (internally via glue code and local)
+   -> OUCH also wired into OVERFLOW -> (externally via rename)
+
+ rename OUCH to OVERFLOW in
+     local DOWN, RESET, PRESSED in
+         CounterExpr(container, "down", max)
+     ||  loop
+             await OUCH -> emit RESET
+     ||  loop
+             await PRESSED -> emit DOWN
+
+2) Inductive case: a carry counter build by chaining two carry
+   counters.
+
+   UP -> [ c1 ] -> OVERFLOW
+   UP -> [ c2 ] -> OVERFLOW
+
+   c1's -> OVERFLOW wired into -> UP 
+   (internally via local and rename, no glue code)  
+
+   c1 represents the less significant digits, c2 the more significant
+   ones.  Each digit may have a different bound (as is the case with 
+   time displays).
+
+ local CARRY in
+     rename OVERFLOW to CARRY in c1
+ ||  rename UP to CARRY in c2
+
+
+Hiding local events
+
+  local l in e
+  local {l,...,l} in e
+
+This makes all events with the stated label(s) private within the
+component.  The result is that the component is wrapped inside a
+bidirectional shield.  Internal events with the given label(s) cannot
+be observed outside the component.  Conversely, external events with
+the given label(s) do not interfere with the component.
+
+Another way of viewing local is as renaming to fresh, unique event
+label(s) that do not occur elsewhere.
+
+
+Demo3 wires a three-digit carry counter to an internal clock.
+
+ local UP in
+ ||  CarryCounter
+         CarryCounter
+             CarryCounter(10)
+             CarryCounter(5)
+         CarryCounter(3)
+ ||  rename TICK to UP in
+         act Clock(100)
+
+The one that goes up to 3 represents the most significant digit,
+although it is rightmost in the visual interface.  Note how the last
+OVERFLOW remains external and does get emitted each time this counter
+turns over.

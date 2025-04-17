@@ -1,0 +1,37 @@
+<body>
+<p>Provides an implementation of temporal logic expressions in Java.</p>
+<p>It includes an abstract superclass called Expr (for atomic expressions
+or events in the system) and a set of classes <tt>Not</tt>, <tt>And</tt>,
+etc., each corresponding to a temporal logic formula, which may be built
+on top of other formulas.
+</p>
+<p>For instance, to create a formula such as: F: <tt>A => Prev B</tt>,
+do this:
+</p>
+<blockquote>
+<pre>Expr B = new Expr();
+Previous Aux0 = new Previous(B);
+Expr A = new Expr();
+Implies F = new Implies(A, Aux0);</pre>
+</blockquote>
+<p>
+(For convenience, arguments of constructors of the subclasses of <tt>Expr</tt>
+can be either expressions of type <tt>Expr</tt> or event labels of type
+<tt>Object</tt>.)
+</p>
+<p>To evaluate this formula over time, you typically do this:</p>
+<blockquote>
+<pre>F.reset();
+for each tick:
+    A.set(some bool value);
+    B.set(some other bool value);
+    boolean v = F.eval();
+    /* use v, or F.check() repeatedly */
+end for</pre>
+</blockquote>
+<p>
+Note that it is possible to use a formula more than once in building new
+formulas, even if it has "internal state", formulas are evaluated *exactly*
+once per each <tt>eval()</tt> to top-level formulas.
+</p>
+</body>

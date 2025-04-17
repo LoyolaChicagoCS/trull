@@ -1,0 +1,329 @@
+<html>
+
+<head>
+  <title>Trull Examples</title>
+  <link rel="StyleSheet" href="../trull.css" type="text/css">
+</head>
+
+<body>
+
+<h1 class="Course-Title">Trull Examples</h1>
+
+<h2 class="Course-Title">TRACING SOME PROGRAMS</h2>
+
+<p>Trace each of the following programs --- A trace is the entire
+sequence of events in the order in which they occur in a specific
+run of the program. For each program, if there is only one
+possible trace, then provide that one. Otherwise provide at least
+two different traces. For this question, assume that there are <em>no
+outside events</em> ; that is, the only events in a program are
+the ones emitted by the program itself.</p>
+
+<h3 class="Subproblem">Program:<em> </em></h3>
+
+<pre class="Subproblem"><em>          emit a 
+       || emit b 
+       || await a -&gt; emit c</em></pre>
+
+<p class="Answer">Trace 1:</p>
+
+<p class="Answer">Trace 2:</p>
+
+<h3 class="Subproblem">Program:<em> </em></h3>
+
+<pre class="Subproblem"><em>          emit a ; emit b 
+       || await a -&gt; emit c</em></pre>
+
+<p class="Answer">Trace 1:</p>
+
+<p class="Answer">Trace 2:</p>
+
+<h3 class="Subproblem">Program:<em> </em></h3>
+
+<pre class="Subproblem"><em>           emit a 
+        || emit b 
+        || do emit c  watching b</em> </pre>
+
+<p class="Answer">Trace 1:</p>
+
+<p class="Answer">Trace 2:</p>
+
+<h3 class="Subproblem">Program:</h3>
+
+<pre class="Subproblem"><em>           emit a 
+        || emit b 
+        || do emit a watching b</em> </pre>
+
+<p class="Answer">Trace 1:</p>
+
+<p class="Answer">Trace 2:</p>
+
+<h3 class="Subproblem">Program:</h3>
+
+<pre class="Subproblem"><em>           do [ emit a ] watching b 
+        || do [ emit b ] watching a</em> </pre>
+
+<p class="Answer">Trace 1:</p>
+
+<p class="Answer">Trace 2:</p>
+
+<h3 class="Subproblem">Program:<em> </em></h3>
+
+<pre class="Subproblem"><em>            emit a 
+         || emit b 
+         || await a -&gt; await b -&gt; emit c </em></pre>
+
+<p class="Answer">Trace 1:</p>
+
+<p class="Answer">Trace 2:</p>
+
+<h3 class="Subproblem">Program:<em> </em></h3>
+
+<pre class="Subproblem"><em>         loop 
+           [ 
+             await a -&gt; emit b 
+           ]
+         || 
+         loop 
+           [ 
+             await a -&gt; emit b 
+           ] 
+         || emit a</em> </pre>
+
+<p class="Answer">Trace 1:</p>
+
+<p class="Answer">Trace 2:</p>
+
+<h2>A SIMPLE COUNTER</h2>
+
+<p>Write the event-driven behavior of a vending machine. The
+interface should be as follows:</p>
+
+<ul>
+    <li>Input events: UP, DOWN, RESET, RESET_MAX </li>
+    <li>Output events:OVERFLOW,UNDREFLOW </li>
+</ul>
+
+<p>Counter should have no other input or output events that are
+visible externally [however, your program may use local events
+and variables to hide some internal events and data from the
+outside world]. </p>
+
+<p>Counter should behave as follows. User should be allowed to
+input any of the four input events at any time:</p>
+
+<ul>
+    <li class="Item">If machine receives a UP, it increments an
+        internal count variable to (count +1) % 10. If count is 0
+        now, an OVERFLOW event is emitted. </li>
+    <li class="Item">If machine receives a DOWN it decrements an
+        internal count variable to (count -1) % 10. If count is 9
+        now, an UNDERFLOW event is emitted. </li>
+    <li class="Item">If machine receives a RESET event, count
+        gets set to 0. </li>
+    <li class="Item">If machine receives a RESET_MAX event, count
+        gets set to 9. </li>
+</ul>
+
+<h2>A MANY DIGIT COUNTER BUILDER</h2>
+
+<p>Write the event-driven behavior of a many digit counter
+builder. For the purposes of this program you can assume that you
+are given:</p>
+
+<ul>
+    <li>TWO counters that implement the interface of the SIMPLE
+        COUNTER. </li>
+</ul>
+
+<p>However, you CANNOT assume that the two given counters are
+SIMPLE COUNTERS. The resulting program should have the same
+interface as a SIMPLE COUNTER. </p>
+
+<h2>A SIMPLE VENDING MACHINE</h2>
+
+<p>Write the event-driven behavior of a vending machine. The
+interface should be as follows:</p>
+
+<ul>
+    <li>Input events: COIN, SODA, JUICE,CANCEL</li>
+    <li>Output events:CHANGE(x),CAN(x) </li>
+</ul>
+
+<p>Vending machine should have no other input or output events
+that are visible externally [however, your program may use local
+events and variables to hide some internal events and data from
+the outside world]. </p>
+
+<p>Vending machine should behave as follows. User should be
+allowed to input any of the four events [COIN, SODA,JUICE, CANCEL]
+at any time. The COIN event is used to give coins to the machine.
+Soda requires 1 COIN, and Juice requires 2 coins [reflecting the
+usual greater nutrition value of juice!] :</p>
+
+<ul>
+    <li class="Item">If machine receives a COIN, it increments an
+        internal coin_count variable. </li>
+    <li class="Item">If machine receives a CANCEL it emits a
+        CHANGE(coin_count) event.</li>
+    <li class="Item">If machine receives a SODA event, and if
+        coin_count is greater than 1, it emits a CAN(&quot;soda&quot;)
+        event, and a CHANGE(coin_count-1) event and resets
+        coin_coutn to 0. </li>
+    <li class="Item">If machine receives a JUICE event, and if
+        coin_count is greater than 2, it emits a CAN(&quot;juice&quot;)
+        event, and a CHANGE(coin_count-2) event and resets
+        coin_count to 0.</li>
+</ul>
+
+<h2>A DOLLAR BILL CHANGER</h2>
+
+<p>Write the event-driven behavior of a dollar bill changer The
+interface should be as follows:</p>
+
+<ul>
+    <li>Input events: DOLLAR_BILL</li>
+    <li>Output events: COIN, NO_CHANGE</li>
+</ul>
+
+<p>The dollar bill changer hould have no other input or output
+events that are visible externally [however, your program may use
+local events and variables to hide some internal events and data
+from the outside world]. </p>
+
+<p>The dollar bill changer should behave as follows. The
+Dollar_Bill event event is used to give single dollars to the
+machine. The machine has an internal boolean variable called
+Change_Available. When the user inputs a DOLLAR_BILL event:</p>
+
+<ul>
+    <li class="Item">If Change_Available is true, the machine
+        emits 4 COIN events.</li>
+    <li class="Item">If Change_Available is false, the machine
+        emits a NO_CHANGE event. </li>
+</ul>
+
+<h2>A VENDING MACHINE THAT ALSO ACCEPTS DOLLAR BILLS</h2>
+
+<p>Write the event-driven behavior of a vending machine that
+accepts dollar bills. For the purposes of this program you can
+assume that you are given</p>
+
+<ul>
+    <li>A SIMPLE VENDING MACHINE, as described above.</li>
+    <li>A DOLLAR BILL CHANGER, as described above.</li>
+</ul>
+
+<p>The interface should be as follows:</p>
+
+<ul>
+    <li>Input events: COIN,SODA,JUICE,CANCEL,DOLLAR_BILL</li>
+    <li>Output events: CHANGE(x),CAN(x),NO_CHANGE</li>
+</ul>
+
+<p>This Vending machine should have no other input or output
+events that are visible externally [however, your program may use
+local events and variables to hide some internal events and data
+from the outside world]. </p>
+
+<p>This advanced Vending machine should behave as follows. User
+should be allowed to input any of the events [COIN, SODA,JUICE,
+CANCEL,DOLLAR_BILL] at any time. In addition to the earlier
+described behavior of the simple vending machine, the advanced
+machine should do:</p>
+
+<ul>
+    <li class="Item">If machine receives a DOLLAR_BILL and no
+        change is available, it should emit NO_CHANGE.</li>
+    <li class="Item">If machine receives a DOLLAR_BILL and change
+        is available, it should behave as if the input event COIN
+        has happened four times.</li>
+</ul>
+
+<h2>A BETTER VENDING MACHINE THAT ACCEPTS DOLLAR BILLS</h2>
+
+<p>The vending machine above is weird. Suppose a user has a
+DOLLAR BILL and wants to buy TWO Juice cans. The vending machine
+(III) will not allow this if it has no change, even though the
+user is NOT expecting to get change. Design and implement the
+most user friendly vending machine that you can, with the same
+interface as (III):</p>
+
+<ul>
+    <li>Input events: COIN,SODA,JUICE,CANCEL,DOLLAR_BILL</li>
+    <li>Output events: CHANGE(x),CAN(x),NO_CHANGE</li>
+</ul>
+
+<h2>DEFINING NEW TRULL COMBINATORS</h2>
+
+<p>In this question, you are asked to write several parameterized
+higher-level combinators expressed in terms of the basic Trull
+combinators. Such combinators are used to build new Trull
+expressions from existing ones.</p>
+
+<h4 class="Paragraph">EXAMPLE (TOGGLE)</h4>
+
+<p class="Paragraph">As a familiar example, the <em>toggle</em>
+combinator is parameterized by an event <em>e</em> and two
+expressions <em>f</em> and <em>s</em> . It starts as <em>f</em>
+and, whenever <em>e</em> occurs, repeatedly toggles between <em>f</em>
+and <em>s</em> .</p>
+
+<pre class="Program">toggle e f s = 
+    loop
+        [ do f watching e 
+         ||
+          await e --&gt; do s watching e
+        ]</pre>
+
+<h4 class="Program">STARTSTOP</h4>
+
+<p class="Program">Write a combinator <em>StartStop</em>
+parameterized by an event <em>START</em> , an event <em>STOP</em>
+, and an expression <em>e</em> . This combinator indefinitely
+repeats the following behavior: When <em>START</em> occurs, it
+should continue as <em>e</em> . When <em>STOP</em> occurs, it
+should kill <em>e</em> , and so on. In other words, this
+combinator adds to <em>e</em> the capability of being (re)started
+and stopped many times.</p>
+
+<p class="Program">StartStop START STOP e =<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</p>
+
+<h3 class="Subproblem">COUNTDOWN</h3>
+
+<p class="Subproblem">Write a combinator <em>CountDown</em>
+parameterized by an event <em>TICK</em> , an integer <em>n</em> ,
+and an event <em>DONE</em> . This combinator emits <em>DONE</em>
+after <em>n</em> occurrences of <em>TICK</em> . Hint: introduce
+any necessary instance variables; use <em>If</em> and appropriate
+actions.</p>
+
+<p class="Program">CountDown TICK n DONE =<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</p>
+
+<h3 class="Subproblem">TIMEOUT</h3>
+
+<p class="Subproblem">Write a combinator <em>Timeout</em>
+parameterized by an expression <em>e</em> , an event <em>TICK</em>
+, and an integer <em>n</em> . This combinator starts as <em>e</em>
+but kills it after <em>n</em> occurrences of <em>TICK</em> . Hint:
+use <em>CountDown</em> .<em> </em></p>
+
+<p class="Program">Timeout e TICK n =<br>
+<br>
+<br>
+<br>
+</p>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<body>
+<p>
+Contains all the classes for building systems in Trull,
+a framework for concurrent programming with objects, threads, and
+events in Java.  Trull supports the modular design of event-driven
+systems through combinators that operate on abstract behaviors.
+</p>
+<p>An Trull software component combines three aspects of behavior:</p>
+<ul>
+<li>object-oriented behavior based on methods and instance variables;</li>
+<li>event-driven (reactive) behavior based on responses to events received
+from the environment;</li>
+<li>autonomous behavior based on threads that evolve independently.</li>
+</ul>
+<p>
+All three aspects of behavior may result in the emission of events to the
+surrounding system (the component's environment).
+</p>
+<p>A class for a custom Trull component is usually declared
+by extending one of the classes that implement the interface <code>Component</code> 
+and providing any necessary
+instance variables for the object-oriented aspects of the component. The
+event-driven aspects of the expression are usually provided in the
+constructor. The thread-based aspects are usually provided by implementing
+the lifecycle methods; specific support for such components is provided by the 
+Trull Task framework.
+</p>
+<p>
+Code that interacts with the object-oriented aspects of a
+Trull component may be embedded in the event-driven behavior in the
+form of embedded listeners, event functions, 
+predicates, and valuators. Using combinators,
+complex components may be built hierarchically from 
+existing components.
+</p>
+</body>

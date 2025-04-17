@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+<head>
+<title>Trull: Documentation</title>
+<link rel="StyleSheet" href="trull.css" type="text/css" />
+</head>
+
+<body>
+<h1>Trull: Documentation</h1>
+
+<p><em>Trull (TRiveni ULtra Light)</em>
+is a framework for concurrent programming with objects, events, and threads.</p>
+<p>
+Trull supports the modular design of event-driven systems from
+building blocks.  Successively complex systems can be built from basic
+components (such as simple event listeners and event sources) and
+combinators (such as concurrent composition, sequential composition,
+branches, loops, etc.)
+</p>
+<p>
+Trull supports the sequential, non-overlapping processing of events by
+a single thread.  Therefore, explicit multithreading or concurrency
+control is unnecessary in most cases.  In addition, the Trull Task
+framework provides support for and seamless integration with
+components that use explicit threads to implement autonomous behavior.
+</p>
+<p>
+Trull components are compliant with the JavaBeans specification and
+integrate seamlessly with Swing and other suitable JavaBeans.  In
+particular, Trull components can be assembled and managed by
+lightweight bean containers such as
+the <a href="http://www.springframework.org">Spring Framework</a>;
+such containers effectively provide an XML-based front end for Trull.
+The wristwatch demo illustrates this combination of Trull and Spring.
+</p>
+<p>The following documentation is available:</p>
+<ul>
+<li><a href="http://www.cs.luc.edu/trull/">Trull Project Site at Loyola University Chicago</a></li>
+<li><a href="http://sourceforge.net/projects/trull/">Trull Download Site at SourceForge</a></li>
+<li><a href="http://www.cs.luc.edu/triveni/">Triveni Site at Loyola University Chicago</a></li>
+<li><a href="LICENSE.txt">License and Disclaimer</a></li>
+<li><a href="install.html">Installation and Usage</a></li>
+<li><a href="api/index.html">Trull API Documentation (run demos via JavaWS)</a></li>
+<li>Trull Java Sources: 
+<a href="../src/">core</a>
+<a href="../demo/">demos</a>
+<a href="../test/">tests</a>
+</li>
+<li><a href="misc/">Miscellaneous Trull User Documentation</a></li>
+</ul>
+
+</body>
+</html>
+

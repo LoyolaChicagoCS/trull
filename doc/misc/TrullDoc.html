@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+  <TITLE>Trull: Overview of Framework</TITLE>
+  <link rel="StyleSheet" href="../trull.css" type="text/css" />
+</HEAD>
+
+<BODY>
+
+<h1>Trull: Overview of Framework</h1>
+
+<P>
+<TABLE BORDER="2">
+	<CAPTION>
+		<P>KINDS OF TRULL OBJECTS
+	</CAPTION>
+	<TR>
+		<TD>l</TD>
+		<TD>an event label (String)</TD>
+	</TR>
+	<TR>
+		<TD>d</TD>
+		<TD>an event data value (Object)<BR>
+            PropertyChangeEvent(Object source, String propertyName, Object oldValue, Object newValue)<BR>
+			String getPropertyName()<BR>
+			Object getNewValue()<BR>
+			Object getSource()</TD>
+	</TR>
+	<TR>
+		<TD>v</TD>
+		<TD>a valuator (EventValuator(), int v.apply(LabeledEvent))</TD>
+	</TR>
+	<TR>
+		<TD>p</TD>
+		<TD>a predicate (EventPredicate(), boolean p.apply(LabeledEvent))</TD>
+	</TR>
+	<TR>
+		<TD>tl</TD>
+		<TD>a temporal-logic assertion (tl.Expr)</TD>
+	</TR>
+	<TR>
+		<TD>e</TD>
+		<TD>a Trull component</TD>
+	</TR>
+</TABLE>
+<BR>
+
+<TABLE BORDER="2">
+	<CAPTION>
+		<P>FORMS OF TRULL COMPONENTS e
+	</CAPTION>
+	<TR>
+		<TD><TT>{action}</TT></TD>
+		<TD><TT>ActionComponent(action)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>done</TT></TD>
+		<TD><TT>Done()</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>nil</TT></TD>
+		<TD><TT>Nil()</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>emit l</TT></TD>
+		<TD><TT>Emit(l)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>emit l(d)</TT></TD>
+		<TD><TT>Emit(l, d)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>assert tl</TT></TD>
+		<TD><TT>Assert(tl)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>await l -&gt; {a} e</TT></TD>
+		<TD><TT>AwaitOne(l, a*, e*)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>await all {l,...,l} -&gt; {a} e</TT></TD>
+		<TD><TT>AwaitAll(new String[] {l,...,l}, a*, e*)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>await {l,...,l} -&gt; {a} e</TT></TD>
+		<TD><TT>AwaitOne(new String[] {l,...,l}, a*, e*)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>await l -&gt; {a} e<BR>
+			&nbsp;&nbsp;&nbsp;&nbsp;| ... <BR>
+			&nbsp;&nbsp;&nbsp;&nbsp;| l -&gt; {a} e</TT></TD>
+		<TD><TT>AwaitOne(new String[] {l,...,l}, new Component[] {e,...,e})</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>e ; ... ; e</TT></TD>
+		<TD><TT>Sequence(new Component[] {e,...,e})<BR>
+			Sequence(e, e)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>loop e</TT></TD>
+		<TD><TT>Loop(e)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>e || ... || e</TT></TD>
+		<TD><TT>Composite(new Component[] {e,...,e})<BR>
+			Composite(e, e)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>suspend l resume l in e</TT></TD>
+		<TD><TT>Suspend(l, l, e)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>suspend {l,...,l} <BR>
+			resume {l,...,l} in e</TT></TD>
+		<TD><TT>Suspend(new String[] {l,...,l}, new String[] {l,...,l}, e)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>do e watching l -&gt; &lt;a,e&gt;</TT></TD>
+		<TD><TT>Watching(e, l, a*, e*)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>do e watching {l,...,l} -&gt; a</TT></TD>
+		<TD><TT>Watching(e, new String[] {l,..,l}, a*)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>do e watching l -&gt; &lt;a,e&gt; <BR>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| ... <BR>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| l -&gt; &lt;a,e&gt;</TT></TD>
+		<TD><TT>Watching(e, new String[] {l,...,l}, new Component[] {e,...,e})</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>local l in e</TT></TD>
+		<TD><TT>Local(l, e)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>local {l,...,l} in e</TT></TD>
+		<TD><TT>Local(new String[] {l,...,l}, e)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>rename l to l in e</TT></TD>
+		<TD><TT>Rename(l,l,e)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>rename {l,...,l} <BR>
+			to {l,...,l} in e</TT></TD>
+		<TD><TT>Rename(new String[] {l,...,l}, new String[] {l,...,l}, e)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>switch v in e ... e</TT></TD>
+		<TD><TT>Switch(v, new Component[] {e,...,e})</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>if p then e else e</TT></TD>
+		<TD><TT>If(p, e, e)</TT></TD>
+	</TR>
+	<TR>
+		<TD><TT>if p then e</TT></TD>
+		<TD><TT>If(p, e)</TT></TD>
+	</TR>
+</TABLE>
+
+
+</BODY>
+
+</HTML>

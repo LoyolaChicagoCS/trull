@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"> 
+
+<!-- wire together the various components of the wristwatch application -->
+<beans> 
+
+  <!-- create the date model shared among the various controller components -->    
+  <bean id="model" class="edu.luc.cs.trull.demo.wristwatch.DateModel"/>
+
+  <!--
+   * setmode =
+   *   cycle RESET
+   *     setHour
+   *     setMinute
+   *     setDay
+   *     setMonth
+  --> 
+  <bean id="setMode" class="edu.luc.cs.trull.Cycle">
+    <property name="cycleEvent" value="Reset"/>
+    <property name="components">
+      <list>
+        <bean class="edu.luc.cs.trull.demo.wristwatch.SetHour">
+          <property name="model" ref="model"/>
+        </bean>
+        <bean class="edu.luc.cs.trull.demo.wristwatch.SetMinute">
+          <property name="model" ref="model"/>
+        </bean>
+        <bean class="edu.luc.cs.trull.demo.wristwatch.SetDay">
+          <property name="model" ref="model"/>
+        </bean>
+        <bean class="edu.luc.cs.trull.demo.wristwatch.SetMonth">
+          <property name="model" ref="model"/>
+        </bean>
+      </list>
+    </property>
+  </bean>
+  
+  <!--
+   * wristwatch =
+   *   local UPDATE
+   *     light
+   *   | update
+   *   | cycle MODE 
+   *       timemode
+   *       datemode
+   *       stopwatch
+   *       setmode
+  -->  
+  <bean id="wristwatch" class="edu.luc.cs.trull.Local">
+    <property name="localEvent" value="Update"/>
+    <property name="components">
+      <bean class="edu.luc.cs.trull.Composite">
+        <property name="components">
+          <list>
+            <bean class="edu.luc.cs.trull.Composite"> 
+              <property name="components">
+                <list>
+                  <bean class="edu.luc.cs.trull.demo.wristwatch.Light"/>
+                  <bean class="edu.luc.cs.trull.demo.wristwatch.Update">
+                    <property name="model" ref="model"/>
+                  </bean>
+                  <bean class="edu.luc.cs.trull.Cycle">
+                    <property name="cycleEvent" value="Mode"/>
+                    <property name="components">
+                      <list>
+                        <bean class="edu.luc.cs.trull.demo.wristwatch.TimeMode">
+                          <property name="model" ref="model"/>
+                        </bean>
+                        <bean class="edu.luc.cs.trull.demo.wristwatch.DateMode">
+                          <property name="model" ref="model"/>
+                        </bean>
+                        <bean class="edu.luc.cs.trull.demo.stopwatch.Translation"/>
+                        <ref local="setMode"/>
+                      </list>
+                    </property>
+                  </bean>
+                </list>
+              </property>
+            </bean>
+          </list>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <!-- create the top-level controller component -->
+  <bean id="controller" class="edu.luc.cs.trull.DefaultTopLevelComponent">
+    <property name="component" ref="wristwatch"/>
+    <property name="scheduler">
+      <bean class="edu.luc.cs.trull.swing.FastSwingScheduler"/>
+    </property>
+  </bean>
+  
+  <!-- create the timer supplying the clock ticks -->
+  <bean id="timer" class="javax.swing.Timer">
+    <constructor-arg index="0" value="1000"/>
+    <constructor-arg index="1">
+      <bean class="edu.luc.cs.trull.demo.wristwatch.TimerListener">
+        <property name="target" ref="wristwatch"/>
+        <property name="event" value="Tick"/>
+      </bean>  
+    </constructor-arg>
+  </bean>
+  
+  <!-- create the presentation (view) layer -->
+  <bean id="presentation" class="edu.luc.cs.trull.demo.wristwatch.Presentation"/>
+  
+  <!-- create the global scheduler -->
+  <bean id="scheduler" class="edu.luc.cs.trull.swing.FastSwingScheduler"/>
+
+  <!-- make presentation listen to wristwatch -->
+  <bean id="hookup1" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetObject" ref="wristwatch"/>
+    <property name="targetMethod" value="addPropertyChangeListener"/>
+    <property name="arguments">
+      <list>
+        <ref local="presentation"/>
+      </list>
+    </property>
+  </bean>
+  
+  <!-- make wristwatch listen to presentation -->
+    <bean id="hookup2" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetObject" ref="presentation"/>
+    <property name="targetMethod" value="addPropertyChangeListener"/>
+    <property name="arguments">
+      <list>
+        <ref local="wristwatch"/>
+      </list>
+    </property>
+  </bean>
+  
+  <!-- create top-level frame around presentation -->
+  <bean id="frame" class="javax.swing.JFrame" depends-on="hookup1,hookup2">
+    <constructor-arg type="java.lang.String" value="Trull Wristwatch"/>
+    <property name="defaultCloseOperation">
+      <bean id="javax.swing.JFrame.EXIT_ON_CLOSE" 
+        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+    </property>
+    <property name="contentPane" ref="presentation"/>
+  </bean>    
+
+</beans>

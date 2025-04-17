@@ -1,0 +1,43 @@
+  BODY {
+    background: #ffff99;
+    font-family: sans-serif;
+    color: black;
+  }
+  
+  H1 {
+  	color: #ff6600;
+  }
+  
+  H2, H3, H4, H5, H6 {
+  	color: #cc6600;
+  }
+  
+  H1 {
+    letter-spacing: 0em
+  }
+
+.top, .bottom {
+  font-size: smaller;
+  background: #ffcc66;
+}
+
+.check {
+  font-size: smaller;
+  background: #ffffcc;
+}
+
+.filler {
+  width: 50%;
+}
+  
+  :link { text-decoration: none; }
+  :visited { text-decoration: none; }
+  :link:hover, :visited:hover { text-decoration: underline; }
+  :link:active, :visited:active { text-decoration: none; }
+
+/*
+  :link { color: #33cccc; text-decoration: none; }
+  :visited { color: #009999; text-decoration: none; }
+  :link:hover, :visited:hover { color: #ff3333; text-decoration: underline; }
+  :link:active, :visited:active { color: #ff3333; text-decoration: none; }
+*/

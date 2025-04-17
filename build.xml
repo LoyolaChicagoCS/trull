@@ -1,0 +1,386 @@
+<?xml version="1.0"?>
+
+<!--
+       Build file for the Trull framework.
+-->
+
+<project default="all" basedir=".">
+
+  <!-- all properties are in build.properties -->
+  <property file="build.properties" />
+
+  <!-- ================================================================== -->
+  <!-- Definition of default target                                       -->
+  <!-- ================================================================== -->
+
+  <target name="all" depends="lib-jar" />
+
+  <!-- ================================================================== -->
+  <!-- Initialization of all property settings                            -->
+  <!-- ================================================================== -->
+
+  <target name="init" />
+
+  <!-- ================================================================== -->
+  <!-- Removes all created files and directories                          -->
+  <!-- ================================================================== -->
+
+  <target name="clean-junk" depends="init">
+    <delete failonerror="false" includeEmptyDirs="true">
+      <fileset dir="${basedir}" defaultexcludes="no">
+        <include name="**/.DS_Store" />
+        <include name="**/*.bak" />
+        <include name="**/*~" />
+        <include name="TEST-*.txt" />
+      </fileset>
+      <fileset dir="META-INF" />
+      <fileset dir="${dist.dir}" />
+    </delete>
+  </target>
+
+  <target name="clean" depends="clean-junk">
+    <delete failonerror="false" includeEmptyDirs="true">
+      <fileset dir="${basedir}" defaultexcludes="no">
+        <include name="${trull.jar}" />
+      </fileset>
+      <fileset dir="${classes.dir}" />
+      <fileset dir="${javadoc.dir}" />
+    </delete>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Restores the distribution to a clean state (jar but no class files)-->
+  <!-- ================================================================== -->
+
+  <target name="restore" depends="clean-junk,javadoc,lib-jar">
+    <delete failonerror="false" includeEmptyDirs="true">
+      <fileset dir="${classes.dir}" />
+    </delete>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Compilation of the src part of the framework                       -->
+  <!-- ================================================================== -->
+
+  <target name="core-classes" depends="init">
+    <mkdir dir="${classes.dir}" />
+    <!-- remove the excludes attribute once the dependencies are removed (see Tester source) -->
+    <javac srcdir="${src.dir}"
+           destdir="${classes.dir}"
+           includes="**"
+           classpath="${build.classpath}"
+           deprecation="${build.deprecation}" />
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Compilation of the demo part of the framework                      -->
+  <!-- ================================================================== -->
+
+  <target name="demo-classes" depends="core-classes">
+    <!-- remove this first task once the dependencies are removed (see Tester source) -->
+    <javac srcdir="${demo.dir}"
+           destdir="${classes.dir}"
+           includes="**"
+           classpath="${build.classpath}"
+           deprecation="${build.deprecation}" />
+    <rmic classname="${package.root}.demo.rmi.PeerImpl"
+          stubversion="1.2"
+          base="${classes.dir}"
+          classpath="${build.classpath}">
+    </rmic>
+    <copy file="${demo.dir}/log4j.properties" todir="${classes.dir}"/>
+    <copy file="${demo.dir}/edu/luc/cs/trull/demo/wristwatch/wristwatch.xml"
+	  todir="${classes.dir}/edu/luc/cs/trull/demo/wristwatch"
+    />
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Compilation of the test cases for the framework                    -->
+  <!-- ================================================================== -->
+
+  <target name="test-classes" depends="core-classes">
+    <javac srcdir="${test.dir}"
+           destdir="${classes.dir}"
+           includes="**"
+           classpath="${build.classpath}"
+           deprecation="${build.deprecation}" />
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Compilation of all classes (only if jar is out of date)            -->
+  <!-- ================================================================== -->
+
+  <target name="all-classes" depends="core-classes,demo-classes,test-classes"/>
+
+  <!-- ================================================================== -->
+  <!-- Creation of the jar file                                           -->
+  <!-- ================================================================== -->
+
+  <target name="lib-jar-uptodate">
+    <uptodate property="libjar.uptodate" targetfile="${trull.jar}">
+      <srcfiles dir="${src.dir}" includes="**" />
+      <srcfiles dir="${demo.dir}" includes="**" />
+      <srcfiles dir="${test.dir}" includes="**" />
+    </uptodate>
+  </target>
+
+  <target name="lib-jar" depends="lib-jar-uptodate" unless="libjar.uptodate">
+    <antcall target="all-classes"/>
+    <jar jarfile="${trull.jar}" basedir="${classes.dir}" />
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- JUnit tests                                                        -->
+  <!-- ================================================================== -->
+
+  <target name="tests" depends="lib-jar">
+    <echo message="The test reports will be in" />
+    <echo message="${basedir}/TEST-*.txt" />
+    <echo message="If this target produces errors," />
+    <echo message="try moving ANT_HOME/${ant-junit.jar} somewhere else." />
+    <taskdef name="myjunit"
+             classpath="${test.classpath}"
+             classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" />
+    <myjunit printsummary="no" fork="no" haltonfailure="no">
+      <formatter type="plain" usefile="true" />
+      <classpath>
+        <pathelement path="${test.classpath}" />
+      </classpath>
+      <batchtest fork="yes">
+        <fileset dir="${test.dir}">
+          <include name="**/Test*.java" />
+        </fileset>
+      </batchtest>
+    </myjunit>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Generates javadoc (but only if out of date)                        -->
+  <!-- ================================================================== -->
+
+  <target name="javadoc-uptodate" depends="init">
+    <uptodate property="javadoc.uptodate" targetfile="${javadoc.dir}/index.html">
+      <srcfiles dir="${src.dir}" includes="**" />
+      <srcfiles dir="${demo.dir}" includes="**" />
+    </uptodate>
+  </target>
+
+  <target name="javadoc" depends="javadoc-uptodate" unless="javadoc.uptodate">
+    <delete failonerror="false" includeEmptyDirs="true">
+      <fileset dir="${javadoc.dir}" />
+    </delete>
+    <mkdir dir="${javadoc.dir}" />
+    <javadoc destdir="${javadoc.dir}"
+             sourcepath="${src.dir}:${demo.dir}"
+             classpath="${javadoc.classpath}"
+             overview="${src.dir}/overview.html"
+             use="true"
+             doctitle="${project.name} API Documentation"
+             windowtitle="${project.name} API Documentation"
+             header="${project.name}"
+             footer="${project.name}"
+             bottom="&lt;a href=&quot;${project.site}&quot;&gt;${project.site}&lt;/a&gt;"
+             nodeprecated="true"
+             private="true"
+             breakiterator="true"
+             packagenames="${package.root},${package.root}.*" />
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Generates a GZip'ed tar binary distribution                        -->
+  <!-- ================================================================== -->
+
+  <target name="clean-dist" depends="init">
+    <delete dir="${dist.dir}" />
+  </target>
+
+  <target name="pre-dist" depends="lib-jar,javadoc,clean-dist" />
+
+  <target name="dist" depends="pre-dist">
+    <mkdir dir="${pretar.dir}" />
+
+    <copy todir="${pretar.dir}" preservelastmodified="true">
+      <fileset dir="${basedir}" includes="${src.dir}/**" />
+      <fileset dir="${basedir}" includes="${demo.dir}/**" />
+      <fileset dir="${basedir}" includes="${test.dir}/**" />
+      <fileset dir="${basedir}" includes="${doc.dir}/**" />
+      <fileset dir="${basedir}" includes="${lib.dir}/**" />
+      <fileset dir="${basedir}" includes="build.*" />
+      <fileset dir="${basedir}" includes="README.txt" />
+      <!--
+         <fileset dir="${basedir}" includes="triveni.dtd" />
+      -->
+    </copy>
+
+    <copy todir="${pretar.dir}">
+      <fileset dir="${basedir}" includes="${bin.dir}/**" />
+      <filterset>
+        <filter token="version" value="${version}" />
+      </filterset>
+    </copy>
+
+    <tar destfile="${dist.dir}/${pkg-dist.name}.tar">
+      <tarfileset dir="${dist.dir}"
+                  includes="${pretar-rel.dir}/**"
+                  excludes="${pretar-rel.dir}/bin/**" />
+      <tarfileset dir="${dist.dir}"
+                  mode="755"
+                  includes="${pretar-rel.dir}/bin/**" />
+    </tar>
+
+    <gzip src="${dist.dir}/${pkg-dist.name}.tar"
+          zipfile="${dist.dir}/${pkg-dist.name}.tar.gz" />
+
+    <delete file="${dist.dir}/${pkg-dist.name}.tar" />
+
+    <zip destfile="${dist.dir}/${pkg-dist.name}.zip">
+      <zipfileset dir="${dist.dir}"
+                  includes="${pretar-rel.dir}/**"
+                  excludes="${pretar-rel.dir}/bin/**" />
+      <zipfileset dir="${dist.dir}"
+                  filemode="755"
+                  includes="${pretar-rel.dir}/bin/**" />
+    </zip>
+
+    <delete dir="${pretar.dir}" />
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Run demos conveniently                                             -->
+  <!-- ================================================================== -->
+
+  <target name="demo-init" depends="lib-jar"/>
+
+  <target name="demo-battleship" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.battleship.BattleShip" />
+  </target>
+
+  <target name="demo-counter1" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.counter.Demo1" />
+  </target>
+
+  <target name="demo-counter1a" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.counter.Demo1a" />
+  </target>
+
+  <target name="demo-counter2" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.counter.Demo2" />
+  </target>
+
+  <target name="demo-counter3" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.counter.Demo3" />
+  </target>
+
+  <target name="demo-counter4" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.counter.Demo4" />
+  </target>
+
+  <target name="demo-counter5" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.counter.Demo5" />
+  </target>
+
+  <target name="demo-counter6" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.counter.Demo6" />
+  </target>
+
+  <target name="demo-microwave" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.microwave.Main" />
+  </target>
+
+  <target name="demo-office" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.office.Main">
+      <arg value="Moe" />
+      <arg value="Larry" />
+      <arg value="Curly" />
+    </java>
+  </target>
+
+  <target name="demo-stopwatch" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.stopwatch.Main" />
+  </target>
+
+  <target name="demo-wristwatch" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.wristwatch.Main" />
+  </target>
+
+  <target name="demo-tasktimer" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.task.TimerDemo" />
+  </target>
+
+  <target name="demo-tasksimple" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.task.SimpleDemo" />
+  </target>
+
+  <target name="demo-taskcomplex" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.task.ComplexDemo" />
+  </target>
+
+  <target name="demo-swingtester" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.test.DemoSwing" />
+  </target>
+
+  <!-- doesn't work, maybe because of missing stdin
+   <target name="demo-consoletester" depends="demo-init">
+      <java fork="true" classpath="${demo.classpath}" classname="${package.root}.demo.test.DemoConsole"/>
+   </target>
+-->
+
+  <target name="demo-rmi1" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.rmi.Main">
+      <jvmarg value="-Djava.rmi.server.codebase=${demo.codebase}" />
+      <jvmarg value="-Djava.security.policy=${demo.policy}" />
+      <arg value="localhost" />
+      <arg value="Peer1" />
+      <arg value="localhost" />
+      <arg value="Peer2" />
+    </java>
+  </target>
+
+  <target name="demo-rmi2" depends="demo-init">
+    <java fork="true"
+          classpath="${demo.classpath}"
+          classname="${package.root}.demo.rmi.Main">
+      <jvmarg value="-Djava.rmi.server.codebase=${demo.codebase}" />
+      <jvmarg value="-Djava.security.policy=${demo.policy}" />
+      <arg value="localhost" />
+      <arg value="Peer2" />
+      <arg value="localhost" />
+      <arg value="Peer1" />
+    </java>
+  </target>
+
+</project>
